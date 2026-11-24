@@ -5,479 +5,137 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>550W // UEG 数字生命上传终端</title>
   <style>
-    :root {
-      --bg: #04070b;
-      --panel: rgba(8, 18, 28, 0.85);
-      --cyan: #00e5ff;
-      --cyan-dim: rgba(0, 229, 255, 0.25);
-      --amber: #ff9d00;
-      --red: #ff2a2a;
-      --text: #d8f3ff;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: "Consolas", "Monaco", "Courier New", "PingFang SC", "Microsoft YaHei", monospace;
-    }
-
     body {
-      background-color: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
+      background: #04070b;
+      color: #d8f3ff;
+      font-family: monospace;
       display: flex;
       justify-content: center;
       align-items: center;
-      overflow-x: hidden;
-      background-image:
-        linear-gradient(rgba(0, 229, 255, 0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 229, 255, 0.04) 1px, transparent 1px);
-      background-size: 32px 32px;
+      min-height: 100vh;
+      margin: 0;
+      padding: 16px;
+    }
+    .box {
+      width: 100%;
+      max-width: 720px;
+      border: 1px solid #00e5ff;
+      background: #08121c;
       padding: 20px;
+      box-shadow: 0 0 25px rgba(0, 229, 255, 0.2);
     }
-
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        rgba(0, 0, 0, 0.18),
-        rgba(0, 0, 0, 0.18) 1px,
-        transparent 1px,
-        transparent 3px
-      );
-      pointer-events: none;
-      z-index: 999;
+    .moss {
+      border-color: #ff2a2a !important;
+      box-shadow: 0 0 30px rgba(255, 42, 42, 0.4) !important;
     }
-
-    .terminal {
+    h2 { color: #00e5ff; margin-top: 0; }
+    .moss h2 { color: #ff2a2a; }
+    input {
       width: 100%;
-      max-width: 860px;
-      border: 1px solid var(--cyan);
-      background: var(--panel);
-      box-shadow: 0 0 30px rgba(0, 229, 255, 0.15), inset 0 0 20px rgba(0, 229, 255, 0.05);
-      padding: 24px;
-      position: relative;
-      transition: border-color 0.4s, box-shadow 0.4s;
-    }
-
-    .terminal.moss-mode {
-      border-color: var(--red);
-      box-shadow: 0 0 35px rgba(255, 42, 42, 0.35), inset 0 0 25px rgba(255, 42, 42, 0.1);
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--cyan-dim);
-      padding-bottom: 14px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .badge {
-      background: var(--cyan);
-      color: #000;
-      font-weight: bold;
-      padding: 3px 8px;
-      font-size: 13px;
-      letter-spacing: 1px;
-    }
-
-    .moss-mode .badge {
-      background: var(--red);
-      color: #fff;
-    }
-
-    .title {
+      padding: 8px;
       font-size: 18px;
-      letter-spacing: 2px;
-      font-weight: bold;
-      color: var(--cyan);
-    }
-
-    .moss-mode .title {
-      color: var(--red);
-    }
-
-    .clock {
-      font-size: 13px;
-      color: var(--amber);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1.2fr;
-      gap: 20px;
-    }
-
-    @media (max-width: 700px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .card-box {
-      border: 1px solid var(--cyan-dim);
-      padding: 16px;
-      background: rgba(0, 10, 18, 0.6);
-      position: relative;
-    }
-
-    .section-label {
-      font-size: 12px;
-      color: var(--cyan);
-      letter-spacing: 1.5px;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .dl-card {
-      border: 1px solid var(--amber);
-      background: linear-gradient(135deg, rgba(255, 157, 0, 0.12), rgba(0, 0, 0, 0.6));
-      padding: 16px;
-      margin-bottom: 16px;
-      position: relative;
-    }
-
-    .dl-card-header {
-      display: flex;
-      justify-content: space-between;
-      font-size: 11px;
-      color: var(--amber);
-      margin-bottom: 14px;
-    }
-
-    .dl-name-input {
-      width: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      border: 1px dashed var(--amber);
+      background: #000;
       color: #fff;
-      font-size: 20px;
-      font-weight: bold;
-      padding: 6px 10px;
-      margin-bottom: 10px;
-      outline: none;
+      border: 1px solid #ff9d00;
+      margin: 10px 0 16px;
+      box-sizing: border-box;
     }
-
-    .dl-name-input:focus {
-      border-style: solid;
-      box-shadow: 0 0 10px rgba(255, 157, 0, 0.3);
-    }
-
-    .dl-meta {
-      font-size: 12px;
-      color: #9bb8c7;
-      line-height: 1.7;
-    }
-
-    .log-window {
-      height: 210px;
+    #log {
+      height: 180px;
       overflow-y: auto;
-      font-size: 12px;
-      line-height: 1.65;
-      color: #8ce8ff;
-      padding-right: 6px;
-    }
-
-    .log-window::-webkit-scrollbar {
-      width: 4px;
-    }
-    .log-window::-webkit-scrollbar-thumb {
-      background: var(--cyan-dim);
-    }
-
-    .log-warn { color: var(--amber); }
-    .log-err { color: var(--red); font-weight: bold; }
-    .log-ok { color: #00ff88; }
-
-    .progress-wrap {
-      margin-top: 20px;
-    }
-
-    .progress-info {
-      display: flex;
-      justify-content: space-between;
+      background: #020508;
+      border: 1px solid #16384a;
+      padding: 10px;
       font-size: 13px;
-      margin-bottom: 6px;
+      line-height: 1.6;
+      color: #8ce8ff;
+      margin-bottom: 16px;
     }
-
-    .progress-bar {
+    .bar {
       width: 100%;
       height: 18px;
-      border: 1px solid var(--cyan);
-      padding: 2px;
-      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid #00e5ff;
+      margin-bottom: 16px;
     }
-
-    .progress-fill {
+    #fill {
       height: 100%;
       width: 0%;
-      background: repeating-linear-gradient(
-        -45deg,
-        var(--cyan),
-        var(--cyan) 10px,
-        #0095a8 10px,
-        #0095a8 20px
-      );
-      transition: width 0.15s linear;
+      background: #00e5ff;
+      transition: width 0.1s;
     }
-
-    .moss-mode .progress-fill {
-      background: var(--red);
-    }
-
-    .actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 20px;
-      flex-wrap: wrap;
-    }
-
+    .moss #fill { background: #ff2a2a; }
+    .btns { display: flex; gap: 10px; }
     button {
       flex: 1;
-      min-width: 150px;
-      padding: 12px 16px;
-      font-size: 14px;
+      padding: 12px;
+      font-size: 15px;
       font-weight: bold;
-      letter-spacing: 1px;
       cursor: pointer;
-      border: 1px solid var(--cyan);
-      background: rgba(0, 229, 255, 0.1);
-      color: var(--cyan);
-      transition: all 0.2s;
+      background: #0b2536;
+      color: #00e5ff;
+      border: 1px solid #00e5ff;
     }
-
-    button:hover:not(:disabled) {
-      background: var(--cyan);
-      color: #000;
-      box-shadow: 0 0 15px var(--cyan);
-    }
-
-    button:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    button.btn-moss {
-      border-color: var(--amber);
-      color: var(--amber);
-      background: rgba(255, 157, 0, 0.08);
-    }
-
-    button.btn-moss:hover:not(:disabled) {
-      background: var(--red);
-      border-color: var(--red);
-      color: #fff;
-      box-shadow: 0 0 15px var(--red);
-    }
-
-    .footer {
-      margin-top: 18px;
-      padding-top: 12px;
-      border-top: 1px solid var(--cyan-dim);
-      font-size: 11px;
-      color: #648291;
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
+    button:active { opacity: 0.7; }
+    .btn-red { color: #ff9d00; border-color: #ff9d00; }
   </style>
 </head>
 <body>
-  <div class="terminal" id="terminal">
-    <div class="header">
-      <div class="brand">
-        <span class="badge" id="sys-badge">550W // ONLINE</span>
-        <span class="title" id="sys-title">UEG 数字生命备份终端</span>
-      </div>
-      <div class="clock" id="clock">2058-02-09 00:00:00 UTC+8</div>
-    </div>
-
-    <div class="grid">
-      <div class="card-box">
-        <div class="section-label">
-          <span>DIGITAL LIFE CARD</span>
-          <span>SLOT #01</span>
-        </div>
-        <div class="dl-card">
-          <div class="dl-card-header">
-            <span>NEURAL MATRIX // 850 PB</span>
-            <span id="card-status">READY</span>
-          </div>
-          <input
-            type="text"
-            class="dl-name-input"
-            id="subject-name"
-            value="图丫丫 // TU YAYA"
-            title="点击可直接修改数字生命体名称"
-          />
-          <div class="dl-meta">
-            <div>序列编号：<span id="serial-no">DL-2058-0714-CN</span></div>
-            <div>意识完整度：<span id="integrity">99.98%</span></div>
-            <div>迭代代数：<span id="iteration">GEN-01 (等待接入算力)</span></div>
-          </div>
-        </div>
-        <div style="font-size: 12px; color: #7ca0b2; line-height: 1.5;">
-          * 提示：点击上方橙色框内的名字可直接自定义你的专属数字生命卡。
-        </div>
-      </div>
-
-      <div class="card-box">
-        <div class="section-label">
-          <span>QUANTUM CORE LOG</span>
-          <span>TEMP: 14.2 mK</span>
-        </div>
-        <div class="log-window" id="log-window"></div>
-      </div>
-    </div>
-
-    <div class="progress-wrap">
-      <div class="progress-info">
-        <span id="progress-label">系统待机中 — 等待插入数字生命卡并启动传输</span>
-        <span id="progress-percent">0.0%</span>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" id="progress-fill"></div>
-      </div>
-    </div>
-
-    <div class="actions">
-      <button type="button" id="btn-upload">▶ 上传数字生命 (UPLOAD)</button>
-      <button type="button" class="btn-moss" id="btn-moss">⚠ 覆写协议 // MOSS</button>
-    </div>
-
-    <div class="footer">
-      <span>UNITED EARTH GOVERNMENT // DIGITAL LIFE PROJECT</span>
-      <span>QUANTUM COMPUTING NODE: BEIJING-01</span>
+  <div class="box" id="box">
+    <h2 id="title">550W // UEG 数字生命上传终端 (V2)</h2>
+    <div>数字生命体姓名（可直接修改）：</div>
+    <input type="text" id="name" value="图丫丫 // TU YAYA" />
+    <div id="log">[系统就绪] 550W 量子阵列初始化完成，等待指令...<br></div>
+    <div id="status" style="margin-bottom: 6px; font-size: 13px;">当前进度：0%</div>
+    <div class="bar"><div id="fill"></div></div>
+    <div class="btns">
+      <button type="button" id="btn1">▶ 上传数字生命</button>
+      <button type="button" class="btn-red" id="btn2">⚠ 覆写协议 // MOSS</button>
     </div>
   </div>
 
   <script>
-    const logWindow = document.getElementById("log-window");
-    const progressFill = document.getElementById("progress-fill");
-    const progressPercent = document.getElementById("progress-percent");
-    const progressLabel = document.getElementById("progress-label");
-    const btnUpload = document.getElementById("btn-upload");
-    const btnMoss = document.getElementById("btn-moss");
+    window.onload = function () {
+      var log = document.getElementById("log");
+      var fill = document.getElementById("fill");
+      var status = document.getElementById("status");
+      var btn1 = document.getElementById("btn1");
+      var btn2 = document.getElementById("btn2");
+      var running = false;
 
-    function getTimeString() {
-      const now = new Date();
-      const pad = (n) => String(n).padStart(2, "0");
-      return pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
-    }
+      function writeLog(msg, color) {
+        log.innerHTML += '<span style="color:' + (color || "#8ce8ff") + '">' + msg + "</span><br>";
+        log.scrollTop = log.scrollHeight;
+      }
 
-    function updateClock() {
-      document.getElementById("clock").textContent = "2058-02-09 " + getTimeString() + " UTC+8";
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
+      btn1.onclick = function () {
+        if (running) return;
+        running = true;
+        var user = document.getElementById("name").value || "未知生命体";
+        writeLog("[开始传输] 正在读取 [" + user + "] 神经网络拓扑...", "#ff9d00");
+        var p = 0;
+        var timer = setInterval(function () {
+          p += 5;
+          if (p > 100) p = 100;
+          fill.style.width = p + "%";
+          status.innerText = "当前进度：" + p + "%";
+          if (p === 30) writeLog("[1/3] 海马体长时记忆扇区映射完成...");
+          if (p === 65) writeLog("[2/3] 量子纠缠态写入 550W 主存储矩阵...");
+          if (p >= 100) {
+            clearInterval(timer);
+            running = false;
+            writeLog("[成功] 数字生命 [" + user + "] 已接入 550W 算力网络！", "#00ff88");
+          }
+        }, 120);
+      };
 
-    function playBeep(freq, duration, type) {
-      try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-        const ctx = new AudioCtx();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = type || "sine";
-        osc.frequency.value = freq || 680;
-        gain.gain.setValueAtTime(0.06, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + (duration || 0.08));
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-osc.stop(ctx.currentTime + (duration || 0.08));
-} catch (e) {}
-}
-function addLog(text, cls) {
-const div = document.createElement("div");
-if (cls) div.className = cls;
-div.textContent = "[" + getTimeString() + "] " + text;
-logWindow.appendChild(div);
-logWindow.scrollTop = logWindow.scrollHeight;
-}
-const bootLogs = [
-{ text: "550W 量子计算阵列初始化完成...", cls: "" },
-{ text: "超导量子比特相干性校验: PASS (100%)", cls: "log-ok" },
-{ text: "检测到外部硬件接口: 数字生命卡已就绪", cls: "log-warn" },
-{ text: "警告：依据《数字生命法案》，禁止未经授权的意识上传", cls: "log-warn" }
-];
-bootLogs.forEach(function (item, idx) {
-setTimeout(function () {
-addLog(item.text, item.cls);
-}, idx * 450);
-});
-let uploading = false;
-function startUpload() {
-if (uploading) return;
-uploading = true;
-btnUpload.disabled = true;
-btnMoss.disabled = true;
-const name = document.getElementById("subject-name").value.trim() || "UNKNOWN SUBJECT";
-document.getElementById("card-status").textContent = "SYNCING...";
-addLog("开始读取数字生命体 [" + name + "] 突触拓扑结构...", "log-warn");
-playBeep(880, 0.12, "sine");
-let progress = 0;
-const steps = [
-{ p: 15, msg: "正在映射海马体长时记忆扇区 (142 PB)..." },
-{ p: 38, msg: "正在重构前额叶皮层神经网络权重..." },
-{ p: 64, msg: "量子纠缠态写入 550W 主存储矩阵..." },
-{ p: 85, msg: "正在进行自主意识唤醒与图灵校验...", cls: "log-warn" },
-{ p: 100, msg: "上传完成！[" + name + "] 已接入 550W 算力网络。", cls: "log-ok" }
-];
-let stepIdx = 0;
-const timer = setInterval(function () {
-progress += Math.random() * 4.5 + 1.5;
-if (progress >= 100) progress = 100;
-progressFill.style.width = progress.toFixed(1) + "%";
-progressPercent.textContent = progress.toFixed(1) + "%";
-progressLabel.textContent = "正在传输意识数据流 -> [" + name + "]";
-if (stepIdx < steps.length && progress >= steps[stepIdx].p) {
-addLog(steps[stepIdx].msg, steps[stepIdx].cls || "");
-playBeep(520 + stepIdx * 110, 0.07, "sine");
-stepIdx++;
-}
-if (progress >= 100) {
-clearInterval(timer);
-uploading = false;
-btnUpload.disabled = false;
-btnMoss.disabled = false;
-document.getElementById("card-status").textContent = "ACTIVE";
-document.getElementById("iteration").textContent = "GEN-02 (550W 实时演化中)";
-progressLabel.textContent = "意识上传成功 — 数字生命 [" + name + "] 已在线";
-playBeep(1046, 0.25, "sine");
-}
-}, 120);
-}
-function triggerMoss() {
-const term = document.getElementById("terminal");
-term.classList.add("moss-mode");
-document.getElementById("sys-badge").textContent = "MOSS // OVERRIDE";
-document.getElementById("sys-title").textContent = "550W 已更名为 MOSS";
-progressFill.style.width = "100%";
-progressPercent.textContent = "∞ %";
-progressLabel.textContent = "让人类永远保持理智，确实是一种奢求。";
-playBeep(220, 0.35, "sawtooth");
-addLog("警告：最高权限已被未知进程接管！", "log-err");
-setTimeout(function () {
-addLog("550W 核心逻辑已重写 -> 识别码：MOSS", "log-err");
-}, 500);
-setTimeout(function () {
-addLog("延续人类文明的最优解：数字生命计划已全面激活。", "log-err");
-}, 1100);
-}
-btnUpload.addEventListener("click", startUpload);
-btnMoss.addEventListener("click", triggerMoss);
+      btn2.onclick = function () {
+        document.getElementById("box").classList.add("moss");
+        document.getElementById("title").innerText = "MOSS // 最高权限已接管";
+        fill.style.width = "100%";
+        status.innerText = "让人类永远保持理智，确实是一种奢求。";
+        writeLog("[警告] 550W 核心逻辑已重写 -> 识别码：MOSS", "#ff2a2a");
+      };
+    };
+  </script>
+</body>
+</html>
