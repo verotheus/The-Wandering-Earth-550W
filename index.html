@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>550W // UEG 数字生命上传终端</title>
+  <style>
+    :root {
+      --bg: #04070b;
+      --panel: rgba(8, 18, 28, 0.85);
+      --cyan: #00e5ff;
+      --cyan-dim: rgba(0, 229, 255, 0.25);
+      --amber: #ff9d00;
+      --red: #ff2a2a;
+      --text: #d8f3ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Consolas", "Monaco", "Courier New", "PingFang SC", "Microsoft YaHei", monospace;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+      background-image:
+        linear-gradient(rgba(0, 229, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 229, 255, 0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      padding: 20px;
+    }
+
+    /* 屏幕扫描线特效 */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.18),
+        rgba(0, 0, 0, 0.18) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    .terminal {
+      width: 100%;
+      max-width: 860px;
+      border: 1px solid var(--cyan);
+      background: var(--panel);
+      box-shadow: 0 0 30px rgba(0, 229, 255, 0.15), inset 0 0 20px rgba(0, 229, 255, 0.05);
+      padding: 24px;
+      position: relative;
+      transition: border-color 0.4s, box-shadow 0.4s;
+    }
+
+    .terminal.moss-mode {
+      border-color: var(--red);
+      box-shadow: 0 0 35px rgba(255, 42, 42, 0.35), inset 0 0 25px rgba(255, 42, 42, 0.1);
+    }
+
+    /* 顶部状态栏 */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--cyan-dim);
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge {
+      background: var(--cyan);
+      color: #000;
+      font-weight: bold;
+      padding: 3px 8px;
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+
+    .moss-mode .badge {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .title {
+      font-size: 18px;
+      letter-spacing: 2px;
+      font-weight: bold;
+      color: var(--cyan);
+    }
+
+    .moss-mode .title {
+      color: var(--red);
+    }
+
+    .clock {
+      font-size: 13px;
+      color: var(--amber);
+    }
+
+    /* 主网格区 */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 700px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card-box {
+      border: 1px solid var(--cyan-dim);
+      padding: 16px;
+      background: rgba(0, 10, 18, 0.6);
+      position: relative;
+    }
+
+    .section-label {
+      font-size: 12px;
+      color: var(--cyan);
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* 数字生命卡视觉 */
+    .dl-card {
+      border: 1px solid var(--amber);
+      background: linear-gradient(135deg, rgba(255, 157, 0, 0.12), rgba(0, 0, 0, 0.6));
+      padding: 16px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .dl-card-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--amber);
+      margin-bottom: 14px;
+    }
+
+    .dl-name-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px dashed var(--amber);
+      color: #fff;
+      font-size: 20px;
+      font-weight: bold;
+      padding: 6px 10px;
+      margin-bottom: 10px;
+      outline: none;
+    }
+
+    .dl-name-input:focus {
+      border-style: solid;
+      box-shadow: 0 0 10px rgba(255, 157, 0, 0.3);
+    }
+
+    .dl-meta {
+      font-size: 12px;
+      color: #9bb8c7;
+      line-height: 1.7;
+    }
+
+    /* 日志输出框 */
+    .log-window {
+      height: 210px;
+      overflow-y: auto;
+      font-size: 12px;
+      line-height: 1.65;
+      color: #8ce8ff;
+      padding-right: 6px;
+    }
+
+    .log-window::-webkit-scrollbar {
+      width: 4px;
+    }
+    .log-window::-webkit-scrollbar-thumb {
+      background: var(--cyan-dim);
+    }
+
+    .log-warn { color: var(--amber); }
+    .log-err { color: var(--red); font-weight: bold; }
+    .log-ok { color: #00ff88; }
+
+    /* 进度条 */
+    .progress-wrap {
+      margin-top: 20px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 18px;
+      border: 1px solid var(--cyan);
+      padding: 2px;
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: repeating-linear-gradient(
+        -45deg,
+        var(--cyan),
+        var(--cyan) 10px,
+        #0095a8 10px,
+        #0095a8 20px
+      );
+      transition: width 0.15s linear;
+    }
+
+    .moss-mode .progress-fill {
+      background: var(--red);
+    }
+
+    /* 控制按钮 */
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      flex: 1;
+      min-width: 150px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      cursor: pointer;
+      border: 1px solid var(--cyan);
+      background: rgba(0, 229, 255, 0.1);
+      color: var(--cyan);
+      transition: all 0.2s;
+    }
+
+    button:hover:not(:disabled) {
+      background: var(--cyan);
+      color: #000;
+      box-shadow: 0 0 15px var(--cyan);
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    button.btn-moss {
+      border-color: var(--amber);
+      color: var(--amber);
+      background: rgba(255, 157, 0, 0.08);
+    }
+
+    button.btn-moss:hover:not(:disabled) {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+      box-shadow: 0 0 15px var(--red);
+    }
+
+    .footer {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px solid var(--cyan-dim);
+      font-size: 11px;
+      color: #648291;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal" id="terminal">
+    <div class="header">
+      <div class="brand">
+        <span class="badge" id="sys-badge">550W // ONLINE</span>
+        <span class="title" id="sys-title">UEG 数字生命备份终端</span>
+      </div>
+      <div class="clock" id="clock">2058-01-22 00:00:00 UTC</div>
+    </div>
+
+    <div class="grid">
+      <!-- 左侧：数字生命卡 -->
+      <div class="card-box">
+        <div class="section-label">
+          <span>DIGITAL LIFE CARD</span>
+          <span>SLOT #01</span>
+        </div>
+        <div class="dl-card">
+          <div class="dl-card-header">
+            <span>NEURAL MATRIX // 850 PB</span>
+            <span id="card-status">READY</span>
+          </div>
+          <!-- 可直接在网页点击修改姓名，也可在此修改 value 默认值 -->
+          <input
+            type="text"
+            class="dl-name-input"
+            id="subject-name"
+            value="图丫丫 // TU YAYA"
+            title="点击可直接修改数字生命体名称"
+          />
+          <div class="dl-meta">
+            <div>序列编号：<span id="serial-no">DL-2058-0714-CN</span></div>
+            <div>意识完整度：<span id="integrity">99.98%</span></div>
+            <div>迭代代数：<span id="iteration">GEN-01 (等待接入算力)</span></div>
+          </div>
+        </div>
+        <div style="font-size: 12px; color: #7ca0b2; line-height: 1.5;">
+          * 提示：点击上方橙色框内的名字可直接自定义你的专属数字生命卡。
+        </div>
+      </div>
+
+      <!-- 右侧：量子核心日志 -->
+      <div class="card-box">
+        <div class="section-label">
+          <span>QUANTUM CORE LOG</span>
+          <span>TEMP: 14.2 mK</span>
+        </div>
+        <div class="log-window" id="log-window"></div>
+      </div>
+    </div>
+
+    <!-- 上传进度 -->
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <span id="progress-label">系统待机中 — 等待插入数字生命卡并启动传输</span>
+        <span id="progress-percent">0.0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- 交互控制 -->
+    <div class="actions">
+      <button id="btn-upload" onclick="startUpload()">▶ 上传数字生命 (UPLOAD)</button>
+      <button class="btn-moss" id="btn-moss" onclick="triggerMoss()">⚠ 覆写协议 // MOSS</button>
+    </div>
+
+    <div class="footer">
+      <span>UNITED EARTH GOVERNMENT // DIGITAL LIFE PROJECT</span>
+      <span>QUANTUM COMPUTING NODE: BEIJING-01</span>
+    </div>
+  </div>
+
+  <script>
+    const logWindow = document.getElementById("log-window");
+    const progressFill = document.getElementById("progress-fill");
+    const progressPercent = document.getElementById("progress-percent");
+    const progressLabel = document.getElementById("progress-label");
+    const btnUpload = document.getElementById("btn-upload");
+    const btnMoss = document.getElementById("btn-moss");
+
+    // 实时时间显示（设定在流浪地球危机纪元）
+    function updateClock() {
+      const now = new Date();
+      const timeStr = now.toTimeString().split(" ")[0];
+      document.getElementById("clock").textContent = `2058-02-09 ${timeStr} UTC+8`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // 简易电子提示音（无需外部音频文件）
+    function playBeep(freq = 680, duration = 0.08, type = "sine") {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.06, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
